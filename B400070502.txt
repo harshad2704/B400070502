@@ -1,0 +1,427 @@
+//assignment4 
+
+import java.util.*;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+
+public class balgo{
+	
+	
+	public static void balgo(String m, String s1, String s2,String s3){
+		System.out.println("--------------------");
+		System.out.println("Initial times : ");
+		System.out.println("Master  : "+m);
+		System.out.println("Slave1 : "+s1);
+		System.out.println("Slave2 : "+s2);
+		System.out.println("Slave3 : "+s3);
+		System.out.println("--------------------");
+		
+		
+		SimpleDateFormat sdf= new SimpleDateFormat("mm:ss");
+		try{
+		long mog= sdf.parse(m).getTime()/1000;
+		long s1og= sdf.parse(s1).getTime()/1000;
+		long s2og= sdf.parse(s2).getTime()/1000;
+		long s3og=sdf.parse(s3).getTime()/1000;
+		
+		long s1diff= s1og-mog;
+		long s2diff= s2og-mog;
+		long s3diff= s3og-mog;
+		
+		System.out.println("--------------------");
+		System.out.println("Time Difference wrt master : ");
+		System.out.println("Master  : 0");
+		System.out.println("Slave1 : "+s1diff);
+		System.out.println("Slave2 : "+s2diff);
+		System.out.println("Slave3 : "+s3diff);
+		System.out.println("--------------------");
+		
+		long ft= (0+s1diff+s2diff+s3diff)/4;
+		System.out.println("--------------------");
+		System.out.println("Average Fault Tolerence : "+ft);
+		System.out.println("--------------------");
+		
+		long madj= ft-0;
+		long s1adj= ft-s1diff;
+		long s2adj= ft- s2diff;
+		long s3adj= ft-s3diff;
+		
+		System.out.println("--------------------");
+		System.out.println("Adjustments to be done  : ");
+		System.out.println("Master  : "+madj);
+		System.out.println("Slave1 : "+s1adj);
+		System.out.println("Slave2 : "+s2adj);
+		System.out.println("Slave3 : "+s3adj);
+		System.out.println("--------------------");
+		
+		
+		long mn=mog+madj;
+		long s1n= s1og+s1adj;
+		long s2n= s2og+s2adj;
+		long s3n= s3og+s3adj;
+		
+		System.out.println("--------------------");
+		System.out.println("Final adjusted times  : ");
+		System.out.println("Master  : "+ sdf.format(new Date(mn*1000)));
+		System.out.println("Slave1 : "+sdf.format(new Date(s1n*1000)));
+		System.out.println("Slave2 : "+sdf.format(new Date(s2n*1000)));
+		System.out.println("Slave3 : "+sdf.format(new Date(s3n*1000)));
+		System.out.println("--------------------");
+		
+		
+		}
+		
+		catch(ParseException e){
+			e.printStackTrace();
+		}
+			
+	}
+
+	public static void main(String args[]){
+		balgo("3:00","3:10", "2:50", "3:20");
+	}
+}
+
+
+
+//assignment 5
+
+import java.util.*;
+
+public class tokenring{
+	public static void main(String args[]) throws Throwable{
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter the number of nodes : ");
+		System.out.print(" ");
+		int n= sc.nextInt();
+		for(int i=0; i<n; i++){
+			System.out.print(i+" ");
+		}
+		System.out.print("0");
+		
+		int token=0;
+		int choice=1;
+		
+		do{
+		System.out.println("Enter the sender no : ");
+		int sender= sc.nextInt();
+		System.out.println("Enter the receiver no : ");
+		int receiver= sc.nextInt();
+		System.out.println("Enter the data : ");
+		int data= sc.nextInt();
+		
+		int i= token;
+		System.out.println("token passing as -->");
+		while(i!=sender){
+			System.out.print(i + "-> ");
+			i=(i+1)%n;
+		}
+		System.out.print(sender);
+		
+		
+		System.out.println("----> Sender "+sender+" sending the data : "+data);
+		
+		i= sender+1;
+		while(i!=receiver){
+			System.out.println("node "+i+" forwarded the data "+data);
+			i=(i+1)%n;
+		}
+		
+		System.out.println("----> Receiver "+receiver+" received the data : "+data);
+		
+		token= sender;
+		System.out.println("press 1 to continue else press any other number : ");
+		choice= sc.nextInt();
+		
+		}while(choice==1);
+		
+	}
+
+}
+
+//assignment 6 
+
+import java.io.*;
+import java.util.Scanner;
+
+public class leader_bully {
+    static int n;
+    static int pro[] = new int[10];
+    static int sta[] = new int[10];
+    static int co;
+
+    public static void main(String args[]) throws IOException {
+        System.out.println("-------------------------------------------------------");
+        System.out.print("Enter the number of processes: ");
+        Scanner in = new Scanner(System.in);
+        n = in.nextInt();
+        System.out.println("-------------------------------------------------------");
+
+        for (int i = 0; i < n; i++) {
+            System.out.println("** For process " + (i + 1) + ":");
+            System.out.print("---> Status (1 for active, 0 for inactive): ");
+            sta[i] = in.nextInt();
+            System.out.print("---> Priority: ");
+            pro[i] = in.nextInt();
+            System.out.println("===============");
+        }
+
+        System.out.println("-------------------------------------------------------");
+        System.out.print("*** Which process will initiate election? : ");
+        int ele = in.nextInt();
+        System.out.println("-------------------------------------------------------");
+        elect(ele);
+        System.out.println("*** Final coordinator is: " + co);
+        System.out.println("-------------------------------------------------------");
+    }
+
+    static void elect(int ele) {
+        ele = ele - 1;
+        co = ele + 1;
+        for (int i = 0; i < n; i++) {
+            if (pro[ele] < pro[i]) {
+                System.out.println("***** Election message is sent from " + (ele + 1) + " to " + (i + 1) + " *****");
+                if (sta[i] == 1)
+                    elect(i + 1);
+            }
+        }
+    }
+}
+
+
+import java.io.*;
+import java.util.Scanner;
+
+public class leader_ring {
+    static int n;
+    static int pro[] = new int[100];
+    static int sta[] = new int[100];
+    static int prio[] = new int[100];
+    static int co;
+
+    public static void main(String args[]) throws IOException {
+        System.out.println("----------------------------------------------------------");
+        System.out.print("Enter the number of processes: ");
+        Scanner in = new Scanner(System.in);
+        n = in.nextInt();
+        System.out.println("----------------------------------------------------------");
+
+        for (int i = 0; i < n; i++) {
+            System.out.println("** For process " + (i + 1) + " :");
+            System.out.print("---> Status (1=active, 0=inactive): ");
+            sta[i] = in.nextInt();
+            System.out.print("---> Priority: ");
+            pro[i] = in.nextInt();
+            System.out.println("===============");
+        }
+
+        System.out.println("The ring formed is: ");
+        for (int i = 1; i <= n; i++) {
+            System.out.print(i + " -> ");
+        }
+        in.close();
+        System.out.println("1");
+
+        System.out.println("----------------------------------------------------------");
+        System.out.print("Which process will initiate election? : ");
+        int ele = in.nextInt();
+        System.out.println("----------------------------------------------------------");
+
+        elect(ele);
+        System.out.println("Final coordinator is: " + co);
+        System.out.println("----------------------------------------------------------");
+    }
+
+    static void elect(int ele) {
+        int index = 0;
+        int max = 0;
+
+        // From the elected process to the end of the ring
+        for (int i = (ele - 1); i < n; i++) {
+            if (sta[i] == 1) {
+                prio[index] = pro[i];
+                index++;
+            }
+        }
+
+        // From start of ring to just before the elected process
+        for (int i = 0; i < (ele - 1); i++) {
+            if (sta[i] == 1) {
+                prio[index] = pro[i];
+                index++;
+            }
+        }
+        
+        // Find maximum priority among active processes
+        for (int i = 0; i < index; i++) {
+            if (prio[i] > max) {
+                max = prio[i];
+            }
+        }
+
+        int ans =0 ;
+        for (int i = 0; i < index; i++) {
+            if (pro[i] == max) {
+                ans = i+1;
+            }
+        }
+        co = ans;
+
+
+    }
+}
+//assignment 1 
+
+import java.rmi.*;
+ public interface circleInterface extends Remote {//We want to results remotely {
+ public double area(int radius) throws RemoteException;
+ public double perimeter(int radius) throws RemoteException;
+ 
+ }
+
+import java.rmi.*;
+import java.rmi.server.*;
+
+public class circleImplementation extends UnicastRemoteObject implements
+circleInterface
+{
+public circleImplementation() throws RemoteException
+{
+
+}
+public double area(int radius) throws RemoteException
+{
+double pi=3.14;
+return pi*radius*radius;
+}
+public double perimeter(int radius) throws RemoteException
+{
+double pi=3.14;
+return 2*pi*radius;
+}
+}
+
+
+import java.rmi.*;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.*;
+public class Server
+{
+public Server() throws RemoteException
+{
+super();
+}
+public static void main(String args[]) throws RemoteException
+{
+Registry reg=LocateRegistry.createRegistry(2000);
+
+circleImplementation ci=new circleImplementation();
+
+reg.rebind("circle",ci);
+
+System.out.println("|-|-|-|-|-|-|-|-|-|-|");
+System.out.println("Server is Waiting.....");
+}
+}
+
+import java.rmi.Naming;
+import java.util.Scanner;
+public class client
+{
+public client()
+{}
+public static void main(String args[]) throws Exception
+{
+int radius;
+Scanner sc=new Scanner(System.in);
+
+System.out.println("|-|-|-|-|-|-|-|-|-|-|");
+System.out.print("Enter The Radius Of The Circle : ");
+radius=sc.nextInt();
+sc.close();
+
+circleInterface c = (circleInterface)Naming.lookup("rmi://localhost:2000/circle");
+
+System.out.println("The Area of Circle is : "+c.area(radius));
+System.out.println("The Circumference of Circle is :"+c.perimeter(radius));
+System.out.println("|-|-|-|-|-|-|-|-|-|-|");
+}
+}
+
+
+//assignment3
+
+Asg3 - MPI (Sum Distribution)
+
+Create the codes as per my GitHub
+
+1) Open terminal navigate to your project and then do cd bin
+2) Type command - mpjrun.bat -np 4 -classpath ".;C:\mpj-v0_44\lib\mpj.jar" ArraySumMPI (For Windows)
+3) And for Ubuntu Linux terminal use this - mpjrun.sh -np 4 ArraySumMPI (file name)
+
+import mpi.*;
+
+public class DistributedSum{
+	public static void main(String args[]) throws MPIException{
+		MPI.Init(args);
+		int rank = MPI.COMM_WORLD.Rank();  // 0 1 2
+		int size= MPI.COMM_WORLD.Size();  //3
+		
+		int[] array= {1,2,3,4,5,6,7,8,9,10};
+		int n= array.length;     //n=10
+		int local_n = n/size;   //3.33 = 10/3
+		int remainder = n%size;   //1
+		
+		int[] local_array = new int[local_n + (rank< remainder ? 1:0)];
+		// p0     3+1=4
+		//p1     3+0=3
+		//p2     3+0=3
+		
+		   
+		
+		
+		int offset= rank*local_n + Math.min(rank, remainder);
+		//p0    0*3 + (0,1) =0     0 1 2 3  [1,2,3,4]
+		
+		
+		//p1    1*3+1=4     4 5 6 [5,6,7]
+
+		//p2    2*3+1=7     7 8 9  [8,9,10]
+		   
+		
+		
+		
+		for(int i=0; i<local_array.length; i++){
+		    
+			local_array[i]=array[i+offset];
+		}
+		
+		int local_sum=0;
+		for(int i=0; i<local_array.length; i++){
+			local_sum+=local_array[i];
+		}
+		
+		int[] global_array = new int[size];
+		
+		MPI.COMM_WORLD.Allgather(new int[]{local_sum}, 0,1, MPI.INT, global_array, 0, 1, MPI.INT);
+		
+		
+		if(rank==0){
+		System.out.println("Number of Processes present : "+size);
+		
+		int global_sum=0;
+		
+		for(int i=0; i<size; i++){
+			global_sum+=global_array[i];
+			System.out.println("The local sum by process "+i+" : "+global_array[i]);
+		}
+		
+		System.out.println("Final Global Sum : "+global_sum);
+		    
+		}
+		MPI.Finalize();
+		
+		
+	}
+
+}
